@@ -1,0 +1,112 @@
+#include <stdio.h>
+#define MEMORY_SIZE 100
+struct MemoryBlock {
+int process_id;
+int size;
+int start_address;
+};
+void initializeMemory(struct MemoryBlock memory[], int size) {
+for (int i = 0; i < size; i++) {
+memory[i].process_id = -1;
+memory[i].size = 0;
+memory[i].start_address = -1;
+}
+}
+void displayMemory(struct MemoryBlock memory[], int size) {
+printf("Memory State:\n");
+for (int i = 0; i < size; i++) {
+if (memory[i].process_id != -1) {
+printf("Block %d: Process %d (Size: %d)\n", i, memory[i].process_id, memory[i].size);
+} else {
+printf("Block %d: Free (Size: %d)\n", i, memory[i].size);
+}
+}
+printf("\n");
+}
+void worstFit(struct MemoryBlock memory[], int num_processes, int process_sizes[]) {
+for (int i = 0; i < num_processes; i++) {
+int largest_hole_index = -1;
+int largest_hole_size = 0;
+for (int j = 0; j < MEMORY_SIZE; j++) {
+if (memory[j].process_id == -1 && memory[j].size >= process_sizes[i]) {
+if (largest_hole_index == -1 || memory[j].size > largest_hole_size) {
+largest_hole_index = j;
+largest_hole_size = memory[j].size;
+}
+}
+}
+if (largest_hole_index != -1) {
+// Allocate memory
+memory[largest_hole_index].process_id = i + 1;
+memory[largest_hole_index].size = process_sizes[i];
+memory[largest_hole_index].start_address = largest_hole_index;
+} else {
+printf("Process %d (Size: %d) cannot be allocated. No suitable block found.\n", i + 1, process_sizes[i]);
+}
+}
+}
+void bestFit(struct MemoryBlock memory[], int num_processes, int process_sizes[]) {
+for (int i = 0; i < num_processes; i++) {
+int best_fit_index = -1;
+int best_fit_size = MEMORY_SIZE + 1;
+for (int j = 0; j < MEMORY_SIZE; j++) {
+(memory[j].process_id == -1 && memory[j].size >= process_sizes[i]); {
+if (memory[j].size < best_fit_size) {
+best_fit_index = j;
+best_fit_size = memory[j].size;
+}
+}
+}
+if (best_fit_index != -1) {
+// Allocate memory
+memory[best_fit_index].process_id = i + 1;
+memory[best_fit_index].size = process_sizes[i];
+memory[best_fit_index].start_address = best_fit_index;
+} else {
+printf("Process %d (Size: %d) cannot be allocated. No suitable block found.\n", i + 1, process_sizes[i]);
+}
+}
+}
+void firstFit(struct MemoryBlock memory[], int num_processes, int process_sizes[]) {
+for (int i = 0; i < num_processes; i++) {
+int first_fit_index = -1;
+for (int j = 0; j < MEMORY_SIZE; j++) {
+if (memory[j].process_id == -1 && memory[j].size >= process_sizes[i]) {
+first_fit_index = j;
+break;
+}
+}
+if (first_fit_index != -1) {
+// Allocate memory
+memory[first_fit_index].process_id = i + 1;
+memory[first_fit_index].size = process_sizes[i];
+memory[first_fit_index].start_address = first_fit_index;
+} else {
+printf("Process %d (Size: %d) cannot be allocated. No suitable block found.\n", i + 1, process_sizes[i]);
+}
+}
+}
+int main() {
+int num_processes;
+printf("Enter the number of processes: ");
+scanf("%d", &num_processes);
+int process_sizes[num_processes];
+printf("Enter the size of each process:\n");
+for (int i = 0; i < num_processes; i++) {
+scanf("%d", &process_sizes[i]);
+}
+struct MemoryBlock memory[MEMORY_SIZE];
+initializeMemory(memory, MEMORY_SIZE);
+printf("\nWorst Fit Allocation:\n");
+worstFit(memory, num_processes, process_sizes);
+displayMemory(memory, MEMORY_SIZE);
+initializeMemory(memory, MEMORY_SIZE);
+printf("Best Fit Allocation:\n");
+bestFit(memory, num_processes, process_sizes);
+displayMemory(memory, MEMORY_SIZE);
+initializeMemory(memory, MEMORY_SIZE);
+printf("First Fit Allocation:\n");
+firstFit(memory, num_processes, process_sizes);
+displayMemory(memory, MEMORY_SIZE);
+return 0;
+}
